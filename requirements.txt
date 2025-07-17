@@ -6,3 +6,4 @@ seaborn
 shap
 pyradiomics
 opencv-python
+joblib
