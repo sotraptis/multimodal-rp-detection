@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it as below:"
+authors:
+  - family-names: Raptis
+    given-names: Sotiris
+title: "Multimodal RP Detection – CT Radiomics + Surrogate IR Features"
+version: 1.0.0
+date-released: 2025-07-17
