@@ -1,0 +1,79 @@
+# Multimodal RP Detection - Fusion Framework Evaluation
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import shap
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import (
+    classification_report, roc_auc_score, roc_curve, accuracy_score
+)
+import os
+
+# -- Paths
+CT_PATH = '../data/ct_radiomics_samples/sample_ct_features.npy'
+THERMAL_PATH = '../data/thermal_features/sample_thermal_features.npy'
+FIGURE_DIR = '../figures'
+os.makedirs(FIGURE_DIR, exist_ok=True)
+
+# -- Load features
+ct_features = np.load(CT_PATH)                    
+thermal_features = np.load(THERMAL_PATH)          
+X = np.hstack([ct_features, thermal_features])    
+
+# -- Labels
+y = np.array([1]*5 + [0]*5)  
+assert len(y) == X.shape[0], "Mismatch between samples and labels"
+
+# -- Feature names
+feature_names = [f'CT_f{i}' for i in range(ct_features.shape[1])] + \
+                ['IR_Asymmetry', 'IR_BreathingRate', 'IR_AmplitudeVar']
+
+# -- Train-test split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y
+)
+
+# -- Model training
+clf = RandomForestClassifier(n_estimators=100, random_state=42)
+clf.fit(X_train, y_train)
+
+# -- Predictions
+y_pred = clf.predict(X_test)
+y_proba = clf.predict_proba(X_test)[:, 1]
+
+# -- Evaluation Metrics
+print("Classification Report:\n")
+print(classification_report(y_test, y_pred, digits=3))
+auc = roc_auc_score(y_test, y_proba)
+print(f"AUC: {auc:.3f}")
+
+# -- ROC Curve
+fpr, tpr, _ = roc_curve(y_test, y_proba)
+plt.figure(figsize=(6, 5))
+plt.plot(fpr, tpr, label=f'ROC Curve (AUC={auc:.2f})', lw=2)
+plt.plot([0, 1], [0, 1], 'k--', lw=1)
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curve – Multimodal RP Detection')
+plt.legend()
+plt.grid(True)
+plt.savefig(os.path.join(FIGURE_DIR, 'roc_curve.png'), dpi=300)
+plt.show()
+
+# -- SHAP Analysis
+print("Computing SHAP values for interpretability...")
+explainer = shap.TreeExplainer(clf)
+shap_values = explainer.shap_values(X_test)
+
+# -- Summary plot for RP+ class
+shap.summary_plot(
+    shap_values[1], X_test, feature_names=feature_names,
+    plot_type="bar", show=False
+)
+plt.title("Feature Importance – RP Positive Class (SHAP)")
+plt.savefig(os.path.join(FIGURE_DIR, 'shap_summary_bar.png'), dpi=300)
+plt.show()
+
+# -- Optional: Detailed SHAP Plot
+shap.summary_plot(shap_values[1], X_test, feature_names=feature_names)
