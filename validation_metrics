@@ -1,0 +1,27 @@
+import joblib
+import numpy as np
+import shap
+import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve
+
+# Load
+model = joblib.load("models/rp_fusion_model.joblib")
+X_test = np.load("data/X_test.npy")
+y_test = np.load("data/y_test.npy")
+y_proba = np.load("results/probabilities.npy")
+
+# ROC
+fpr, tpr, _ = roc_curve(y_test, y_proba)
+plt.plot(fpr, tpr, label='ROC curve')
+plt.plot([0, 1], [0, 1], 'k--')
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.title("ROC Curve – CT+IR Fusion Model")
+plt.legend()
+plt.savefig("figures/roc_validation.png", dpi=300)
+plt.show()
+
+# SHAP
+explainer = shap.TreeExplainer(model)
+shap_values = explainer.shap_values(X_test)
+shap.summary_plot(shap_values[1], X_test, show=True)
