@@ -11,10 +11,10 @@ This repository contains code for a feasibility study on early detection of radi
 ## Sample Images
 
 ### Infrared Thermal Sample
-![Infrared Thermal Sample](images/IR.jpg)
+![Infrared Thermal Sample](IR.jpg)
 
 ### CT Radiomics Feature Visualization
-![CT Radiomics Feature Vector](images/CT.jpg)
+![CT Radiomics Feature Vector](CT.jpg)
 
 
 ## Requirements
