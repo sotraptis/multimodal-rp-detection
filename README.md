@@ -3,10 +3,19 @@
 This repository contains code for a feasibility study on early detection of radiation-induced pneumonitis (RP) using a multimodal AI approach. The proposed framework combines CT-based radiomics with surrogate features extracted from infrared thermographic data.
 
 ## Contents
-- Synthetic IR thermal sample (PNG)
+- Synthetic IR thermal sample (JPG)
 - Simulated CT-based radiomic feature vector (NumPy)
 - Python scripts and Jupyter notebooks for preprocessing, fusion, training, and explainability
 - Visual outputs (ROC curve, metrics, SHAP plot)
+
+## Sample Images
+
+### Infrared Thermal Sample
+![Infrared Thermal Sample](images/IR.jpg)
+
+### CT Radiomics Feature Visualization
+![CT Radiomics Feature Vector](images/CT.jpg)
+
 
 ## Requirements
 Install all dependencies using:
