@@ -1,0 +1,7 @@
+import numpy as np
+
+def extract_radiomic_features(ct_scan_array):
+     return np.random.rand(1, 60)  # 60 radiomic features
+
+def extract_thermal_features(thermal_img_path):
+    return np.array([0.72, 0.43, 0.68])  # simulated values
