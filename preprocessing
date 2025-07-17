@@ -1,7 +1,60 @@
 import numpy as np
+import cv2
 
+# Radiomics Simulation
 def extract_radiomic_features(ct_scan_array):
-     return np.random.rand(1, 60)  # 60 radiomic features
+    """
+    Simulates the extraction of radiomic features from a 3D CT scan array.
+    In practice, use PyRadiomics with an appropriate mask and configuration.
 
+    Args:
+        ct_scan_array (numpy.ndarray): 3D array representing the CT scan.
+
+    Returns:
+        numpy.ndarray: Feature vector of shape (1, 60)
+    """
+    np.random.seed(42)
+    features = np.random.rand(1, 60)  # Replace with your PyRadiomics output
+    return features
+
+
+# Thermal IR Features Extraction
 def extract_thermal_features(thermal_img_path):
-    return np.array([0.72, 0.43, 0.68])  # simulated values
+    """
+    Extracts 3 surrogate thermal features from an IR chest image:
+    - Asymmetry index between left-right hemithorax
+    - Estimated respiratory rate (mocked)
+    - Amplitude variability across breathing cycle (mocked)
+
+    Args:
+        thermal_img_path (str): Path to the thermal image (.png or .jpg)
+
+    Returns:
+        numpy.ndarray: Array of shape (3,) with the extracted features
+    """
+    img = cv2.imread(thermal_img_path, cv2.IMREAD_GRAYSCALE)
+
+    if img is None:
+        raise ValueError(f"Could not load image: {thermal_img_path}")
+
+    # Normalize to [0,1]
+    img_norm = img / 255.0
+
+    # Simulated left-right chest split
+    h, w = img_norm.shape
+    left_half = img_norm[:, :w // 2]
+    right_half = img_norm[:, w // 2:]
+
+    # Asymmetry index: Mean temp diff
+    left_mean = np.mean(left_half)
+    right_mean = np.mean(right_half)
+    asymmetry_index = abs(left_mean - right_mean)
+
+    # Simulated respiratory rate (e.g., 18 bpm normalized)
+    respiratory_rate = 0.43 + 0.05 * np.random.randn()
+
+    # Simulated amplitude variability (IR fluctuation intensity)
+    amplitude_variability = np.std(img_norm)
+
+    return np.array([asymmetry_index, respiratory_rate, amplitude_variability])
+
