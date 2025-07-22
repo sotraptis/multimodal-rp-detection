@@ -1,6 +1,6 @@
 # Multimodal RP Detection – CT Radiomics + Surrogate IR Features
 
-This repository contains code for a feasibility study on early detection of radiation-induced pneumonitis (RP) using a multimodal AI approach. The proposed framework combines CT-based radiomics with surrogate features extracted from infrared thermographic data.
+This repository contains code for a feasibility study on early detection of radiation-induced pneumonitis (RP) using a multimodal AI approach and synthetic sample data. The proposed framework combines CT-based radiomics with surrogate features extracted from infrared thermographic data.
 
 ## Contents
 - Synthetic IR thermal sample (JPG)
