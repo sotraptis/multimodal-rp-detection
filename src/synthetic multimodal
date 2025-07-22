@@ -1,0 +1,54 @@
+import numpy as np
+import pandas as pd
+import os
+import zipfile
+
+n_samples = 10
+n_ct_features = 60
+
+def generate_sample(rp_label):
+    if rp_label == 1:
+        ct_feats = np.random.normal(loc=0.8, scale=0.3, size=n_ct_features)
+        ir_feats = np.array([
+            np.random.uniform(0.6, 0.9),
+            np.random.uniform(0.3, 0.5),
+            np.random.uniform(0.6, 0.9)
+        ])
+    else:
+        ct_feats = np.random.normal(loc=0.3, scale=0.2, size=n_ct_features)
+        ir_feats = np.array([
+            np.random.uniform(0.1, 0.3),
+            np.random.uniform(0.15, 0.25),
+            np.random.uniform(0.1, 0.3)
+        ])
+    return np.concatenate([ct_feats, ir_feats]), rp_label
+
+X = []
+y = []
+for _ in range(n_samples):
+    label = np.random.choice([0, 1])
+    sample, target = generate_sample(label)
+    X.append(sample)
+    y.append(target)
+
+X = np.array(X)
+y = np.array(y)
+
+os.makedirs("synthetic_data", exist_ok=True)
+
+np.save("synthetic_data/synthetic_multimodal_X.npy", X)
+np.save("synthetic_data/synthetic_multimodal_y.npy", y)
+
+df = pd.DataFrame(X, columns=[f"ct_f{i+1}" for i in range(60)] +
+                  ["thermal_asymmetry", "thermal_rr", "thermal_ampvar"])
+df["label"] = y
+df.to_csv("synthetic_data/synthetic_multimodal_dataset.csv", index=False)
+
+with open("synthetic_data/README.md", "w") as f:
+    f.write("""# Synthetic Multimodal Dataset (CT + IR)
+This folder contains synthetically generated multimodal samples combining simulated CT radiomics and thermal IR features, used for validating the proof-of-concept RP detection pipeline.
+""")
+
+with zipfile.ZipFile("synthetic_multimodal_dataset.zip", "w") as zipf:
+    for file in os.listdir("synthetic_data"):
+        zipf.write(f"synthetic_data/{file}", arcname=f"data/synthetic/{file}")
