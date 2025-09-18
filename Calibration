@@ -1,0 +1,19 @@
+from sklearn.calibration import calibration_curve
+from sklearn.metrics import brier_score_loss
+import matplotlib.pyplot as plt
+import numpy as np
+
+# y_true, y_proba_ct, y_proba_fused are arrays from outer CV or holdout
+brier_ct   = brier_score_loss(y_true, y_proba_ct)
+brier_fuse = brier_score_loss(y_true, y_proba_fused)
+print(f"Brier CT-only: {brier_ct:.3f} | Brier CT+IR: {brier_fuse:.3f}")
+
+for name, proba in [("CT-only", y_proba_ct), ("CT+IR", y_proba_fused)]:
+    prob_true, prob_pred = calibration_curve(y_true, proba, n_bins=10, strategy="quantile")
+    plt.plot(prob_pred, prob_true, marker='o', label=name)
+
+plt.plot([0,1],[0,1],'k--', lw=1)
+plt.xlabel("Predicted probability")
+plt.ylabel("Observed frequency")
+plt.title("Reliability (Calibration) Curves")
+plt.legend(); plt.tight_layout()
