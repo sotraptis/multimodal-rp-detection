@@ -1,0 +1,33 @@
+import numpy as np
+from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import StratifiedKFold
+from sklearn.ensemble import RandomForestClassifier
+
+def permute_within_class(ir_feats, y, rng):
+    ir_perm = ir_feats.copy()
+    for cls in np.unique(y):
+        idx = np.where(y == cls)[0]
+        rng.shuffle(ir_perm[idx, :])  # permute rows within class
+    return ir_perm
+
+rng = np.random.default_rng(42)
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+aucs_real, aucs_perm = [], []
+
+for tr, te in cv.split(X, y):
+    X_ct, X_ir = X[tr, :60], X[tr, 60:]
+    X_ct_te, X_ir_te = X[te, :60], X[te, 60:]
+    # Real fused
+    clf = RandomForestClassifier(n_estimators=200, random_state=42)
+    clf.fit(np.hstack([X_ct, X_ir]), y[tr])
+    proba_real = clf.predict_proba(np.hstack([X_ct_te, X_ir_te]))[:,1]
+    aucs_real.append(roc_auc_score(y[te], proba_real))
+    # Permuted fused (within class)
+    X_ir_perm = permute_within_class(X_ir, y[tr], rng)
+    clf_p = RandomForestClassifier(n_estimators=200, random_state=42)
+    clf_p.fit(np.hstack([X_ct, X_ir_perm]), y[tr])
+    proba_perm = clf_p.predict_proba(np.hstack([X_ct_te, X_ir_te]))[:,1]
+    aucs_perm.append(roc_auc_score(y[te], proba_perm))
+
+print(f"AUC real fused (mean±SD): {np.mean(aucs_real):.3f}±{np.std(aucs_real):.3f}")
+print(f"AUC permuted fused      : {np.mean(aucs_perm):.3f}±{np.std(aucs_perm):.3f}")
